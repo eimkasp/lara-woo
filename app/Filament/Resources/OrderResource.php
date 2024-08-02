@@ -3,12 +3,12 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables\Table;
 use Filament\Tables;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
+use Filament\Resources\Resource;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
 
 class OrderResource extends Resource
 {
@@ -28,17 +28,7 @@ class OrderResource extends Resource
                 Forms\Components\Select::make('customer_id')
                     ->relationship('customer', 'email')
                     ->required(),
-                Forms\Components\Repeater::make('products')
-                    ->relationship('products')
-                    ->schema([
-                        Forms\Components\Select::make('product_id')
-                            ->relationship('products', 'name')
-                            ->required(),
-                        Forms\Components\TextInput::make('pivot.quantity')
-                            ->required(),
-                    ])
-                    ->columns(2)
-                    ->required(),
+                
                 Forms\Components\Select::make('channel_id')
                     ->relationship('channel', 'name')
                     ->required(),

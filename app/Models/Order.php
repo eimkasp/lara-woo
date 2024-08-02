@@ -2,34 +2,29 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Order extends Model
 {
-    use HasFactory;
+    protected $fillable = ['total', 'status', 'customer_id', 'channel_id'];
 
-    protected $fillable = [
-        'woocommerce_id',
-        'total',
-        'status',
-        'channel_id',
-        'channel',
-    ];
-
-    public function products()
-    {
-        return $this->belongsToMany(Product::class, 'order_product')
-                    ->withPivot('quantity')
-                    ->withTimestamps();
-    }
-
-    public function customer()
+    // Relationship with Customer
+    public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
-    public function channel()
+    // Relationship with Product through pivot table
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class)
+                    ->withPivot('quantity');  // assuming pivot table has quantity column
+    }
+
+    // Relationship with Channel
+    public function channel(): BelongsTo
     {
         return $this->belongsTo(Channel::class);
     }
