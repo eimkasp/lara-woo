@@ -9,10 +9,17 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "34ml/filament-seo": "^2.2",
+        "arbermustafa/filament-locationpickr-field": "^2.0.0",
         "automattic/woocommerce": "^3.1",
+        "cheesegrits/filament-google-maps": "^3.0",
         "filament/filament": "^3.2",
+        "kodeine/laravel-meta": "^2.2",
         "laravel/framework": "^11.9",
-        "laravel/tinker": "^2.9"
+        "laravel/tinker": "^2.9",
+        "pxlrbt/filament-activity-log": "^1.1",
+        "spatie/laravel-activitylog": "^4.8",
+        "spatie/laravel-schemaless-attributes": "^2.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

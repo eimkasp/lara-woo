@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Kodeine\Metable\Metable;
 
-class Customer extends Model
+class Customer extends BaseModel
 {
     use HasFactory;
-
     protected $fillable = [
         'woocommerce_id',
         'first_name',
@@ -17,6 +17,8 @@ class Customer extends Model
         'channel_id',
         'channel',
     ];
+    // Add this method to define the badge
+
 
     public function orders()
     {

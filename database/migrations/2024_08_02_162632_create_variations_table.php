@@ -13,7 +13,7 @@ class CreateVariationsTable extends Migration
             $table->string('sku')->unique();
             $table->string('name')->nullable();
             $table->decimal('price', 8, 2)->default(0.00);
-            $table->integer('stock_quantity')->default(0);
+            $table->integer('stock_quantity')->default(0)->nullable();
             $table->timestamps();
         });
     }

@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Product extends Model
-{
+
+class Product extends BaseModel
+{    
+
     protected $fillable = ['sku', 'name', 'price', 'stock_quantity', 'channel_id'];
 
     public function variations(): HasMany

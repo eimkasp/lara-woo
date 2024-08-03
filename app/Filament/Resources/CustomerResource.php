@@ -1,7 +1,9 @@
-<?php 
+<?php
 
 namespace App\Filament\Resources;
 
+use App\Filament\Pages\CustomerDetailsPage;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,6 +17,12 @@ class CustomerResource extends Resource
     protected static ?string $model = Customer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) Customer::count(); // Example: showing total order count as a badge
+    }
+    
 
     public static function form(Form $form): Form
     {
@@ -48,13 +56,15 @@ class CustomerResource extends Resource
                     ->label('Channel')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('orders.id')
+                Tables\Columns\TextColumn::make('orders_count')
                     ->label('Orders')
+                    ->counts('orders')  // Counting the number of related orders
                     ->sortable(),
             ])
             ->filters([
                 // Add any filters you need here
             ]);
+          
     }
 
     public static function getPages(): array
@@ -63,7 +73,7 @@ class CustomerResource extends Resource
             'index' => Pages\ListCustomers::route('/'),
             'create' => Pages\CreateCustomer::route('/create'),
             'edit' => Pages\EditCustomer::route('/{record}/edit'),
+            'view' => Pages\ViewCustomer::route('/{record}'),
         ];
     }
 }
-

@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Order extends Model
+class Order extends BaseModel
 {
-    protected $fillable = ['total', 'status', 'customer_id', 'channel_id'];
+    protected $fillable = ['total', 'status', 'customer_id', 'channel_id', 'created_at', 'updated_at', 'channel', 'woocommerce_id'];
 
     // Relationship with Customer
     public function customer(): BelongsTo

@@ -9,12 +9,21 @@ use Filament\Tables\Table;
 use Filament\Tables;
 use App\Filament\Resources\ChannelResource\Pages;
 use App\Models\Channel;
+use Illuminate\Support\HtmlString;
 
 class ChannelResource extends Resource
 {
     protected static ?string $model = Channel::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-link';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return new HtmlString('🟢 0 Issues');
+
+
+    }
+
 
     public static function form(Form $form): Form
     {
