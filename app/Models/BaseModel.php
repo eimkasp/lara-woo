@@ -10,6 +10,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class BaseModel extends Model
 {
     use HasFactory;
+    use Metable;
+
+    protected $metaTable = 'meta';
     
     // Optional: Specify the custom meta table name
     public function meta()

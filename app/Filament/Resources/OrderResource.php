@@ -46,16 +46,17 @@ class OrderResource extends Resource
                 Forms\Components\Select::make('channel_id')
                     ->relationship('channel', 'name')
                     ->required(),
-                Forms\Components\Repeater::make('products')
+                    Forms\Components\Repeater::make('products')
                     ->relationship('products')
                     ->schema([
-                        Forms\Components\TextInput::make('name')->disabled(),
+                        Forms\Components\TextInput::make('name')
+                            ->disabled(),
                         Forms\Components\TextInput::make('pivot.quantity')
                             ->label('Quantity')
-                            ->required(),
+                            ->required()
+                            ->default(fn ($record) => $record?->pivot?->quantity ?? 0),
                     ])
-                    ->columns(2)
-                    ->disabled(),
+                    ->columns(2),
                 Forms\Components\Repeater::make('meta')
                     ->relationship('meta')
                     ->schema([

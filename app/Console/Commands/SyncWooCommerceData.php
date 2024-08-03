@@ -10,10 +10,11 @@ use App\Models\Customer;
 use App\Models\Channel;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
+use Illuminate\Support\Carbon;
 
 class SyncWooCommerceData extends Command
 {
-    protected $signature = 'sync:woocommerce';
+    protected $signature = 'sync:woocommerce {--channel=}';
     protected $description = 'Sync WooCommerce data with Laravel';
 
     public function __construct()
@@ -25,7 +26,15 @@ class SyncWooCommerceData extends Command
     {
         $channels = Channel::all();
 
+        if($this->option('channel')) {
+            $channelId = $this->option('channel');
+            $channels = $channelId ? Channel::where('id', $channelId)->get() : Channel::all();
+        }
+
+
         foreach ($channels as $channel) {
+            $channel = Channel::find($channel->id);
+            $channel->setMeta('last_sync_status', 'running');
             $woocommerce = new Client(
                 $channel->base_url,
                 $channel->consumer_key,
@@ -33,14 +42,25 @@ class SyncWooCommerceData extends Command
                 ['version' => 'wc/v3']
             );
 
-            // Sync products first
-            $this->syncProducts($woocommerce, $channel);
+            try {
+                // Sync data
+                $this->syncProducts($woocommerce, $channel);
+                $this->syncCustomers($woocommerce, $channel);
+                $this->syncOrders($woocommerce, $channel);
 
-            // Sync customers next
-            $this->syncCustomers($woocommerce, $channel);
+                // Save last sync meta data
+                $channel->setMeta('last_sync_time', Carbon::now());
+                $channel->setMeta('last_sync_status', 'success');
+                $channel->save();
 
-            // Finally, sync orders
-            $this->syncOrders($woocommerce, $channel);
+                $this->info("Sync completed successfully for channel: {$channel->name}");
+            } catch (\Exception $e) {
+                // Save last sync status as failed
+                $channel->setMeta('last_sync_status', 'failed');
+                $channel->save();
+
+                $this->error("Sync failed for channel: {$channel->name}. Error: " . $e->getMessage());
+            }
         }
     }
 
@@ -158,20 +178,29 @@ class SyncWooCommerceData extends Command
                     continue;
                 }
 
-                $orderModel = Order::updateOrCreate(
-                    [
-                        'channel' => $channel->id,
-                        'channel_id' => $order->id ?? 5,
-                    ],
-                    [
-                        'total' => $order->total ?? 0,
-                        'status' => $order->status ?? 'unknown',
-                        'customer_id' => $customer->id ?? 5,
-                        'channel_id' => $channel->id ?? 5,
-                        'woocommerce_id' => $order->id,
-                        'channel' => $order->id ?? 0,
-                    ]
-                );
+                try {
+                    $orderModel = Order::updateOrCreate(
+                        [
+                            'channel' => $channel->id,
+                            'channel_id' => $order->id ?? 5,
+                        ],
+                        [
+                            'total' => $order->total ?? 0,
+                            'status' => $order->status ?? 'unknown',
+                            'customer_id' => $customer->id ?? 5,
+                            'channel_id' => $channel->id ?? 5,
+                            'woocommerce_id' => $order->id,
+                            'channel' => $order->id ?? 0,
+                        ]
+                    );
+                } catch (\Illuminate\Database\QueryException $e) {
+                    // Handle the unique constraint violation or other database errors here
+                    // Log the error or take necessary action
+                    \Log::error('Order UpdateOrCreate failed: ' . $e->getMessage());
+
+                    // Optionally, you can return a response or throw a custom exception
+                }
+
 
                 // Sync line items with associated products
                 foreach ($order->line_items as $item) {

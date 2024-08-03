@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Filament\Resources;
 
@@ -51,6 +51,52 @@ class ChannelResource extends Resource
                 Tables\Columns\TextColumn::make('id')->sortable(),
                 Tables\Columns\TextColumn::make('name')->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('base_url')->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('customers_count')
+                    ->label('Customers')
+                    ->counts('customers')
+                    ->sortable(),
+
+                // Column to show the number of products related to this channel
+                Tables\Columns\TextColumn::make('products_count')
+                    ->label('Products')
+                    ->counts('products')
+                    ->sortable(),
+
+
+                // Column to show the number of orders related to this channel
+                Tables\Columns\TextColumn::make('orders_count')
+                    ->label('Orders')
+                    ->counts('orders')
+                    ->sortable(),
+                // Add columns for last sync time and status
+                Tables\Columns\TextColumn::make('meta.last_sync_time')
+                    ->label('Last Sync Time')
+                    ->getStateUsing(fn(Channel $record) => $record->meta->where('last_sync_time')->last() ? $record->meta->where('last_sync_time')->last() : '🕒 Never')
+                    ->sortable(),
+
+                Tables\Columns\BadgeColumn::make('meta.last_sync_status')
+                    ->label('Last Sync Status')
+                    ->colors([
+                        'success' => 'success',
+                        'danger' => 'failed',
+                    ])
+                    ->getStateUsing(fn(Channel $record) => $record->meta->where('last_sync_status')->last() ? $record->meta->where('last_sync_status')->last() : '🔴 Never'),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('sync')
+                    ->label('Sync')
+                    ->icon('heroicon-o-arrow-path')
+                    ->requiresConfirmation()
+                    ->action(function (Channel $record) {
+                        // Dispatch the sync command for this specific customer or related channel
+                        \Artisan::call('sync:woocommerce', [
+                            '--channel' => $record->id,
+                        ]);
+
+                        // Optionally, provide user feedback
+                        $this->notify('success', 'Sync started for ' . $record->name);
+                    }),
             ])
             ->filters([
                 // Add any filters you need here
