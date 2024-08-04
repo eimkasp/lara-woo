@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Tables;
 use App\Filament\Resources\CustomerResource\Pages;
+use App\Filament\Resources\CustomerResource\RelationManagers\OrderRelationManager;
 use App\Models\Customer;
 
 class CustomerResource extends Resource
@@ -41,6 +42,14 @@ class CustomerResource extends Resource
                 Forms\Components\Select::make('channel_id')
                     ->relationship('channel', 'name')
                     ->required(),
+                // Forms\Components\HasManyRepeater::make('orders')
+                //     ->relationship('orders')
+                //     ->schema([
+                //         Forms\Components\TextInput::make('id')->disabled(),
+                //         Forms\Components\TextInput::make('status')->required(),
+                //         Forms\Components\TextInput::make('total')->required(),
+                //     ])
+                //     ->disabled(),
             ]);
     }
 
@@ -74,6 +83,13 @@ class CustomerResource extends Resource
             'create' => Pages\CreateCustomer::route('/create'),
             'edit' => Pages\EditCustomer::route('/{record}/edit'),
             'view' => Pages\ViewCustomer::route('/{record}'),
+        ];
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            OrderRelationManager::class,
         ];
     }
 }

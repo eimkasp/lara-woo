@@ -38,18 +38,28 @@ class SyncCustomersJob implements ShouldQueue
             $page++;
 
             foreach ($customers as $customer) {
+                // Ensure first_name and last_name are not null
+                $firstName = $customer->first_name ?? '';
+                $lastName = $customer->last_name ?? '';
+
                 $customerModel = Customer::updateOrCreate(
                     [
                         'email' => $customer->email,
                         'channel_id' => $this->channel->id,
                     ],
                     [
-                        'first_name' => $customer->first_name,
-                        'last_name' => $customer->last_name,
+                        'first_name' => $firstName,
+                        'last_name' => $lastName,
                         'email' => $customer->email,
                         'channel_id' => $this->channel->id,
+                        'channel' => $customer->id,
+                        'woocommerce_id' => $customer->id,
+
                     ]
                 );
+
+                \Log::info("Customer Created Or Updated: " . $customer->email . ". Channel: " . $this->channel->name);
+                $this->outputMessage("Customer Created Or Updated: " . $customer->email . ". Channel: " . $this->channel->name);
 
                 // Sync polymorphic meta fields for customer
                 foreach ($customer->meta_data as $meta) {
@@ -63,7 +73,15 @@ class SyncCustomersJob implements ShouldQueue
                         ]
                     );
                 }
+                $this->outputMessage("Customer Meta Synced: " . $customer->email . ". Channel: " . $this->channel->name);
             }
         } while (count($customers) > 0);
+    }
+
+    protected function outputMessage($message)
+    {
+        if (app()->runningInConsole()) {
+            echo $message . PHP_EOL;
+        }
     }
 }

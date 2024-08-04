@@ -11,6 +11,9 @@ use App\Models\Channel;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
 use Illuminate\Support\Carbon;
+use App\Jobs\SyncProductsJob;
+use App\Jobs\SyncCustomersJob;
+use App\Jobs\SyncOrdersJob;
 
 class SyncWooCommerceData extends Command
 {
@@ -25,6 +28,8 @@ class SyncWooCommerceData extends Command
     public function handle()
     {
         $channels = Channel::all();
+
+        
 
         if($this->option('channel')) {
             $channelId = $this->option('channel');
@@ -42,25 +47,10 @@ class SyncWooCommerceData extends Command
                 ['version' => 'wc/v3']
             );
 
-            try {
-                // Sync data
-                $this->syncProducts($woocommerce, $channel);
-                $this->syncCustomers($woocommerce, $channel);
-                $this->syncOrders($woocommerce, $channel);
-
-                // Save last sync meta data
-                $channel->setMeta('last_sync_time', Carbon::now());
-                $channel->setMeta('last_sync_status', 'success');
-                $channel->save();
-
-                $this->info("Sync completed successfully for channel: {$channel->name}");
-            } catch (\Exception $e) {
-                // Save last sync status as failed
-                $channel->setMeta('last_sync_status', 'failed');
-                $channel->save();
-
-                $this->error("Sync failed for channel: {$channel->name}. Error: " . $e->getMessage());
-            }
+            // Refactor this to use jobs in Jobs folder and dispatch them here
+            SyncProductsJob::dispatch($channel);
+            SyncCustomersJob::dispatch($channel);
+            // SyncOrdersJob::dispatch($channel);
         }
     }
 

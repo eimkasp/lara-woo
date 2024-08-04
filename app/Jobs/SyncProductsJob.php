@@ -41,7 +41,8 @@ class SyncProductsJob implements ShouldQueue
 
             foreach ($products as $product) {
                 if (empty($product->sku)) {
-                    \Log::error("Product skipped: No SKU found");
+                    \Log::error("Product skipped: No SKU found. Channel: " . $this->channel->name);
+                    $this->outputMessage("Product skipped: No SKU found. Channel: " . $this->channel->name);
                     continue;
                 }
 
@@ -58,7 +59,8 @@ class SyncProductsJob implements ShouldQueue
                     ]
                 );
 
-                \Log::info("Product Created Or Updated: " . $product->sku);
+                \Log::info("Product Created Or Updated: " . $product->sku . ". Channel: " . $this->channel->name);
+                $this->outputMessage("Product Created Or Updated: " . $product->sku . ". Channel: " . $this->channel->name);
 
                 // Sync product images
                 foreach ($product->images as $index => $image) {
@@ -72,6 +74,7 @@ class SyncProductsJob implements ShouldQueue
                         ]
                     );
                 }
+                $this->outputMessage("Product Images Synced: " . $product->sku . ". Channel: " . $this->channel->name);
 
                 // Sync polymorphic meta fields
                 foreach ($product->meta_data as $meta) {
@@ -85,11 +88,13 @@ class SyncProductsJob implements ShouldQueue
                         ]
                     );
                 }
+                $this->outputMessage("Product Meta Synced: " . $product->sku . ". Channel: " . $this->channel->name);
 
                 // Handle variations
                 foreach ($product->variations as $variation) {
                     if (empty($variation->sku)) {
-                        \Log::error("Variation skipped: No SKU found");
+                        \Log::error("Variation skipped: No SKU found. Channel: " . $this->channel->name);
+                        $this->outputMessage("Variation skipped: No SKU found. Channel: " . $this->channel->name);
                         continue;
                     }
 
@@ -118,8 +123,16 @@ class SyncProductsJob implements ShouldQueue
                         );
                     }
                 }
+                $this->outputMessage("Product Variations Synced: " . $product->sku . ". Channel: " . $this->channel->name);
             }
         } while (count($products) > 0);
+    }
+
+    protected function outputMessage($message)
+    {
+        if (app()->runningInConsole()) {
+            echo $message . PHP_EOL;
+        }
     }
 }
 

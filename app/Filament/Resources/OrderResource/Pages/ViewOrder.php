@@ -11,9 +11,9 @@ class ViewOrder extends ViewRecord
     protected static string $resource = OrderResource::class;
 
     protected function getHeaderWidgets(): array
-    {
-        return [
-            OrderSummaryWidget::class,
-        ];
-    }
+{
+    return [
+      
+    ];
+}
 }

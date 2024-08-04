@@ -2,17 +2,13 @@
 
 namespace App\Filament\Resources;
 
-use _34ml\SEO\SEOField;
 use Filament\Forms;
-use Filament\Forms\Components\Placeholder;
 use Filament\Tables;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
 use Filament\Resources\Resource;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Filament\Forms\Get;
-use Illuminate\Support\HtmlString;
 
 class ProductResource extends Resource
 {
@@ -20,116 +16,82 @@ class ProductResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    // Add this method to define the badge
     public static function getNavigationBadge(): ?string
     {
-        return (string) Product::count(); // Example: showing total order count as a badge
+        return (string) Product::count(); // Example: showing total product count as a badge
     }
 
     public static function form(Form $form): Form
     {
-        $formSchema = [
-            
-            Forms\Components\TextInput::make('sku')
-                ->required()
-                ->maxLength(255),
-            Forms\Components\TextInput::make('name')
-                ->required()
-                ->maxLength(255),
-            Forms\Components\TextInput::make('price')
-                ->required(),
-            Forms\Components\TextInput::make('stock_quantity'),
-            Forms\Components\Select::make('channel_id')
-                ->relationship('channel', 'name')
-                ->required(),
-            Forms\Components\Repeater::make('variations')
-                ->relationship('variations')
-                ->schema([
-                    Forms\Components\TextInput::make('sku')
-                        ->required(),
-                    Forms\Components\TextInput::make('name'),
-                    Forms\Components\TextInput::make('price')
-                        ->required(),
-                    Forms\Components\TextInput::make('stock_quantity')
-                        ->required(),
-                ])
-                ->columns(2)
-                ->required(),
-            Forms\Components\Repeater::make('images')
-                ->relationship('images')
-                ->schema([
-                    Placeholder::make('image_preview')
-                        ->content(function (Get $get): HtmlString {
-                            $url = $get('url'); // Fetch the URL from the form state
-                            if ($url) {
-                                return new HtmlString('<img src="' . e($url) . '" style="max-width: 200px;" />');
-                            }
-                            return new HtmlString('<p>No image available</p>');
-                        }),
-                    Forms\Components\TextInput::make('url')
-                        ->label('Image URL')
-                        ->disabled()
-                        ->required()
-                        ->afterStateUpdated(function ($state, callable $set) {
-                            $set('image_preview', $state);  // Update the image preview state
-                        }),
-                    Forms\Components\Checkbox::make('is_primary')
-                        ->disabled()
-                        ->label('Primary Image'),
-                ])
-                ->columns(1)
-                ->required(),
-        ];
-
-        // Retrieve and add meta fields
-        $product = request()->route('record') ? Product::find(request()->route('record')) : new Product();
-
-        if ($product && $product->exists) {
-            foreach ($product->meta()->get() as $meta) {
-                $formSchema[] = Forms\Components\TextInput::make("meta[{$meta->key}]")
-                    ->label(ucwords(str_replace('_', ' ', $meta->key)))
-                    ->default($meta->value);
-            }
-        }
-
-        return $form->schema($formSchema);
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('sku')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('price')
+                    ->required(),
+                Forms\Components\TextInput::make('stock_quantity'),
+                Forms\Components\Select::make('channel_id')
+                    ->relationship('channel', 'name')
+                    ->required(),
+                Forms\Components\Repeater::make('variations')
+                    ->relationship('variations')
+                    ->schema([
+                        Forms\Components\TextInput::make('sku')
+                            ->required(),
+                        Forms\Components\TextInput::make('name'),
+                        Forms\Components\TextInput::make('price')
+                            ->required(),
+                        Forms\Components\TextInput::make('stock_quantity')
+                            ->required(),
+                    ])
+                    ->columns(2)
+                    ->required(),
+                Forms\Components\Repeater::make('images')
+                    ->relationship('images')
+                    ->schema([
+                        Forms\Components\TextInput::make('url')
+                            ->label('Image URL')
+                            ->required(),
+                        Forms\Components\Checkbox::make('is_primary')
+                            ->label('Primary Image'),
+                    ])
+                    ->columns(1)
+                    ->required(),
+            ]);
     }
 
     public static function table(Table $table): Table
     {
-        $tableColumns = [
-            Tables\Columns\ImageColumn::make('primary_image_url')
-                ->label('Image Preview') // Show image preview in the table
-                ->sortable()
-                ->disk('public') // Adjust to your file system disk if needed
-                ->width(100) // Adjust width as needed
-                ->height(100), // Adjust height as needed
-            
-            Tables\Columns\TextColumn::make('id')->sortable(),
-            Tables\Columns\TextColumn::make('sku')->sortable()->searchable(),
-            Tables\Columns\TextColumn::make('name')->sortable()->searchable(),
-            Tables\Columns\TextColumn::make('price')->sortable(),
-            Tables\Columns\TextColumn::make('stock_quantity')->sortable(),
-            Tables\Columns\TextColumn::make('channel.name')
-                ->label('Channel') // Accessing the channel relationship directly
-                ->sortable()
-                ->searchable(),
-            Tables\Columns\TextColumn::make('variations.sku')
-                ->label('Variation SKUs')
-                ->sortable(),
-        ];
-
-        // Retrieve and add meta columns
-        $product = new Product();
-
-        foreach ($product->meta()->get() as $meta) {
-            $tableColumns[] = Tables\Columns\TextColumn::make("meta.{$meta->key}")
-                ->label(ucwords(str_replace('_', ' ', $meta->key)))
-                ->sortable()
-                ->searchable();
-        }
-
-        return $table->columns($tableColumns);
+        return $table
+            ->columns([
+                Tables\Columns\ImageColumn::make('primary_image_url')
+                    ->label('Image Preview')
+                    ->sortable()
+                    ->disk('public')
+                    ->width(100)
+                    ->height(100),
+                Tables\Columns\TextColumn::make('id')->sortable(),
+                Tables\Columns\TextColumn::make('sku')->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('name')->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('price')->sortable(),
+                Tables\Columns\TextColumn::make('stock_quantity')->sortable(),
+                Tables\Columns\TextColumn::make('channel.name')
+                    ->label('Channel')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('variations.sku')
+                    ->label('Variation SKUs')
+                    ->sortable(),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('channel')
+                    ->relationship('channel', 'name')
+                    ->label('Channel'),
+            ], layout: FiltersLayout::AboveContentCollapsible);
     }
 
     public static function getPages(): array
@@ -138,6 +100,7 @@ class ProductResource extends Resource
             'index' => Pages\ListProducts::route('/'),
             'create' => Pages\CreateProduct::route('/create'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'view' => Pages\ViewProduct::route('/{record}'), // Register the view page
         ];
     }
 }

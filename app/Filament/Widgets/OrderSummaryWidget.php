@@ -10,10 +10,18 @@ class OrderSummaryWidget extends BaseWidget
 {
     protected function getCards(): array
     {
-        $totalRevenue = Order::sum('total');
-        $totalOrders = Order::count();
-        $totalItemsSold = Order::with('products')->get()->sum(function ($order) {
-            return $order->products->sum('pivot.quantity');
+        $totalRevenue = cache()->remember('total_revenue', 60, function () {
+            return Order::sum('total');
+        });
+
+        $totalOrders = cache()->remember('total_orders', 60, function () {
+            return Order::count();
+        });
+
+        $totalItemsSold = cache()->remember('total_items_sold', 60, function () {
+            return Order::with('products')->get()->sum(function ($order) {
+                return $order->products->sum('pivot.quantity');
+            });
         });
 
         return [

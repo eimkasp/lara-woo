@@ -6,6 +6,7 @@ use App\Filament\Widgets\OrderSummaryWidget;
 use Filament\Forms;
 use Filament\Tables;
 use App\Filament\Resources\OrderResource\Pages;
+use App\Filament\Resources\OrderResource\RelationManagers\ProductRelationManager;
 use App\Models\Order;
 use Filament\Resources\Resource;
 use Filament\Forms\Form;
@@ -23,7 +24,6 @@ class OrderResource extends Resource
             OrderSummaryWidget::class, // Include the summary widget on the index page
         ];
     }
-
 
     // Add this method to define the badge
     public static function getNavigationBadge(): ?string
@@ -46,17 +46,17 @@ class OrderResource extends Resource
                 Forms\Components\Select::make('channel_id')
                     ->relationship('channel', 'name')
                     ->required(),
-                    Forms\Components\Repeater::make('products')
-                    ->relationship('products')
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('pivot.quantity')
-                            ->label('Quantity')
-                            ->required()
-                            ->default(fn ($record) => $record?->pivot?->quantity ?? 0),
-                    ])
-                    ->columns(2),
+                // Forms\Components\Repeater::make('products')
+                //     ->relationship('products')
+                //     ->schema([
+                //         Forms\Components\TextInput::make('name')
+                //             ->disabled(),
+                //         Forms\Components\TextInput::make('pivot.quantity')
+                //             ->label('Quantity')
+                //             ->required()
+                //             ->default(fn ($record) => $record?->pivot?->quantity ?? 0),
+                //     ])
+                //     ->columns(2),
                 Forms\Components\Repeater::make('meta')
                     ->relationship('meta')
                     ->schema([
@@ -99,7 +99,14 @@ class OrderResource extends Resource
             'index' => Pages\ListOrders::route('/'),
             'create' => Pages\CreateOrder::route('/create'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
-            'view' => Pages\ViewOrder::route('/{record}'),
+            'view' => Pages\ViewOrder::route('/{record}'), // Register the view page
+        ];
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            ProductRelationManager::class, // Register the ProductRelationManager
         ];
     }
 }
