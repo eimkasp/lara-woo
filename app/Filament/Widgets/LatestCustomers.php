@@ -22,7 +22,7 @@ class LatestCustomers extends BaseWidget
         return Customer::query()
             ->select('customers.*')
             ->join('orders', 'customers.id', '=', 'orders.customer_id')
-            ->selectRaw('SUM(orders.total) as total_spent')
+            ->selectRaw('SUM(orders.total) as total_spent, MAX(orders.created_at) as last_order, COUNT(orders.id) as number_of_orders')
             ->groupBy('customers.id')
             ->orderByDesc('total_spent')
             ->limit(5); // Adjust the limit as needed
@@ -36,10 +36,10 @@ class LatestCustomers extends BaseWidget
     protected function getTableColumns(): array
     {
         return [
-            Tables\Columns\TextColumn::make('id')->label('Customer ID')->sortable(),
-            Tables\Columns\TextColumn::make('name')->label('Name')->sortable(),
             Tables\Columns\TextColumn::make('email')->label('Email')->sortable(),
             Tables\Columns\TextColumn::make('total_spent')->label('Total Spent')->sortable(),
+            Tables\Columns\TextColumn::make('last_order')->label('Last Order')->sortable()->since(),
+            Tables\Columns\TextColumn::make('number_of_orders')->label('Number of Orders')->sortable(),
         ];
     }
 }

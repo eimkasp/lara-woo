@@ -41,9 +41,11 @@ class SyncProductsJob implements ShouldQueue
 
             foreach ($products as $product) {
                 if (empty($product->sku)) {
-                    \Log::error("Product skipped: No SKU found. Channel: " . $this->channel->name);
-                    $this->outputMessage("Product skipped: No SKU found. Channel: " . $this->channel->name);
-                    continue;
+                    // \Log::error("Product skipped: No SKU found. Channel: " . $this->channel->name);
+                    // $this->outputMessage("Product skipped: No SKU found. Channel: " . $this->channel->name);
+
+                    // generate sku 
+                    $product->sku = uniqid();
                 }
 
                 $productModel = Product::updateOrCreate(
@@ -93,9 +95,10 @@ class SyncProductsJob implements ShouldQueue
                 // Handle variations
                 foreach ($product->variations as $variation) {
                     if (empty($variation->sku)) {
-                        \Log::error("Variation skipped: No SKU found. Channel: " . $this->channel->name);
-                        $this->outputMessage("Variation skipped: No SKU found. Channel: " . $this->channel->name);
-                        continue;
+                            \Log::error("Product skipped: No SKU found. Channel: " . $this->channel->name);
+                            $this->outputMessage("Product skipped: No SKU found. Channel: " . $this->channel->name);
+                            continue;
+                            // generate sku 
                     }
 
                     $variationModel = ProductVariation::updateOrCreate(

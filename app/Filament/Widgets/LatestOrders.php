@@ -29,10 +29,17 @@ class LatestOrders extends BaseWidget
     protected function getTableColumns(): array
     {
         return [
-            Tables\Columns\TextColumn::make('id')->label('Order ID')->sortable(),
+            Tables\Columns\TextColumn::make('created_at')->label('Time Ago')->sortable()->since(),
+            Tables\Columns\BadgeColumn::make('status')->label('Status')->sortable()->colors([
+                'pending' => 'yellow',
+                'completed' => 'green',
+                'canceled' => 'red',
+                'refunded' => 'red',
+
+            ]),
             Tables\Columns\TextColumn::make('total')->label('Total')->sortable(),
-            Tables\Columns\TextColumn::make('status')->label('Status')->sortable(),
             Tables\Columns\TextColumn::make('customer.email')->label('Customer Email')->sortable(),
+            Tables\Columns\TextColumn::make('id')->label('Order ID')->sortable(),
         ];
     }
 }
