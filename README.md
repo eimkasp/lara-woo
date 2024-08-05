@@ -1,5 +1,7 @@
 # LaraWoo - WooCommerce Data Synchronization for Laravel
 
+!!! THIS PROJECT IS IN EXPERIMENTAL STAGE !!!
+
 Migrate, sync and manage multiple WooCommerce stores in one Laravel application.
 
 This command is designed to synchronize data between a WooCommerce store and a Laravel application. It is part of the console command suite and can be executed via the command line.
