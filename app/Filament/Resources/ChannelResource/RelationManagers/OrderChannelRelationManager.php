@@ -27,9 +27,13 @@ class OrderChannelRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('name')
+            ->recordTitleAttribute('id')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('id'),
+                Tables\Columns\TextColumn::make('customer.email'),
+                Tables\Columns\TextColumn::make('total'),
+                Tables\Columns\TextColumn::make('created_at')->since(),
+
             ])
             ->filters([
                 //

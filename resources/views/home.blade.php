@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h2>Most Popular Products</h2>
-                <div class="row grid grid-cols-4 gap-9">
+                <div class="row grid grid-cols-3 gap-9">
                     @foreach($products as $product)
                     <div class="col-md-3">
                         <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">

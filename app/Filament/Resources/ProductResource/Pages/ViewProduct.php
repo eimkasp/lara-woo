@@ -14,7 +14,9 @@ class ViewProduct extends ViewRecord
     protected function getHeaderWidgets(): array
     {
         return [
-            ProductSalesRevenueWidget::class, // Add the custom widget to the page
+            // ProductSalesRevenueWidget::class, // Add the custom widget to the page
         ];
     }
+
+    
 }

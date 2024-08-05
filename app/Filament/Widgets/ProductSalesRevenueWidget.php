@@ -6,7 +6,7 @@ use App\Models\Product;
 
 class ProductSalesRevenueWidget extends Widget
 {
-    // protected static string $view = 'filament.widgets.product-sales-revenue-widget';
+    protected static string $view = 'filament.widgets.product-sales-revenue-widget';
 
     public Product $product;
 

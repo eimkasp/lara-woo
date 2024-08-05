@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\StockManagement;
 use App\Filament\Widgets\LatestCustomers;
 use App\Filament\Widgets\LatestOrders;
 use App\Filament\Widgets\OrdersByStatusWidget;
@@ -39,6 +40,8 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+                StockManagement::class,
+
             ])
             // ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([

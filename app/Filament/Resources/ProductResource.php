@@ -3,11 +3,13 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
 use Filament\Resources\Resource;
 use Filament\Forms\Form;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 
 class ProductResource extends Resource
@@ -37,30 +39,25 @@ class ProductResource extends Resource
                 Forms\Components\Select::make('channel_id')
                     ->relationship('channel', 'name')
                     ->required(),
-                Forms\Components\Repeater::make('variations')
-                    ->relationship('variations')
-                    ->schema([
-                        Forms\Components\TextInput::make('sku')
-                            ->required(),
-                        Forms\Components\TextInput::make('name'),
-                        Forms\Components\TextInput::make('price')
-                            ->required(),
-                        Forms\Components\TextInput::make('stock_quantity')
-                            ->required(),
-                    ])
-                    ->columns(2)
-                    ->required(),
                 Forms\Components\Repeater::make('images')
-                    ->relationship('images')
+                    ->label('Images')
                     ->schema([
                         Forms\Components\TextInput::make('url')
                             ->label('Image URL')
+                            ->url()
                             ->required(),
-                        Forms\Components\Checkbox::make('is_primary')
-                            ->label('Primary Image'),
                     ])
-                    ->columns(1)
+                    ->createItemButtonLabel('Add Image')
                     ->required(),
+                Forms\Components\Repeater::make('relatedProductsBySku')
+                    ->relationship('relatedProductsBySku')
+                    ->schema([
+                        TextInput::make('name')->label('Related Product Name')->disabled(),
+                        TextInput::make('channel_id')->label('Channel')->disabled(),
+                        TextInput::make('price')->label('Price')->disabled(),
+                    ])
+                    ->columns(3)
+                    ->label('Related Products from Other Channels'),
             ]);
     }
 
@@ -86,6 +83,11 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('variations.sku')
                     ->label('Variation SKUs')
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('relatedProductsBySku.name')
+                    ->label('Related Products')
+                    ->sortable(),
+
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('channel')

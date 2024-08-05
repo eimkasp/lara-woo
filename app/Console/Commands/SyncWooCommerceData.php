@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\SyncWooCommerceReviews;
 use Illuminate\Console\Command;
 use Automattic\WooCommerce\Client;
 use App\Models\Product;
@@ -50,7 +51,8 @@ class SyncWooCommerceData extends Command
             // Refactor this to use jobs in Jobs folder and dispatch them here
             SyncProductsJob::dispatch($channel);
             SyncCustomersJob::dispatch($channel);
-            // SyncOrdersJob::dispatch($channel);
+            SyncWooCommerceReviews::dispatch($channel);
+            SyncOrdersJob::dispatch($channel);
         }
     }
 

@@ -23,6 +23,13 @@ class Product extends BaseModel
         return $this->hasMany(ProductImage::class);
     }
 
+    public function relatedProductsBySku()
+    {
+        return $this->hasMany(Product::class, 'sku', 'sku')
+            ->where('channel_id', '!=', $this->channel_id);
+    }
+    
+
     // Relationship with Order through pivot table
     public function orders(): BelongsToMany
     {
