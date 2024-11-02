@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
 use App\Jobs\SyncProductsJob;
 use App\Jobs\SyncCustomersJob;
 use App\Jobs\SyncOrdersJob;
+use App\Jobs\UpdateStockQuantitiesJob; // P0690
 
 class SyncWooCommerceData extends Command
 {
@@ -53,6 +54,7 @@ class SyncWooCommerceData extends Command
             SyncCustomersJob::dispatch($channel);
             SyncWooCommerceReviews::dispatch($channel);
             SyncOrdersJob::dispatch($channel);
+            UpdateStockQuantitiesJob::dispatch($channel); // P0690
         }
     }
 
@@ -247,4 +249,33 @@ class SyncWooCommerceData extends Command
         }
     }
 
+    protected function updateStockQuantities($woocommerce, $channel) // Pda87
+    {
+        $page = 1;
+
+        do {
+            $products = $woocommerce->get('products', ['page' => $page, 'per_page' => 100]);
+            $page++;
+
+            foreach ($products as $product) {
+                $productModel = Product::where('sku', $product->sku)
+                    ->where('channel_id', $channel->id)
+                    ->first();
+
+                if ($productModel) {
+                    $productModel->update(['stock_quantity' => $product->stock_quantity]);
+
+                    foreach ($product->variations as $variation) {
+                        $variationModel = ProductVariation::where('sku', $variation->sku)
+                            ->where('product_id', $productModel->id)
+                            ->first();
+
+                        if ($variationModel) {
+                            $variationModel->update(['stock_quantity' => $variation->stock_quantity]);
+                        }
+                    }
+                }
+            }
+        } while (count($products) > 0);
+    }
 }

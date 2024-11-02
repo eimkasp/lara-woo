@@ -83,6 +83,9 @@ class WooCommerceWebhookController extends Controller
                 'channel_id' => $productData['channel_id'],
             ]
         );
+
+        // Update stock quantity
+        $productModel->update(['stock_quantity' => $productData['stock_quantity']]);
     }
 
     protected function syncCustomer($customerData)
@@ -100,4 +103,3 @@ class WooCommerceWebhookController extends Controller
         );
     }
 }
-

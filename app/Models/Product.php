@@ -42,6 +42,10 @@ class Product extends BaseModel
     {
         return $this->belongsTo(Channel::class);
     }
+
+    public function updateStockQuantity($quantity)
+    {
+        $this->update(['stock_quantity' => $quantity]);
+    }
     
 }
-

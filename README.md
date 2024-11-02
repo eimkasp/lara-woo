@@ -91,3 +91,56 @@ For more detailed output during the synchronization, you can run the command in 
 
 Running the sync
 `php artisan sync:woocommerce`
+
+## Getting Started
+
+To get started with this project, follow these steps:
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/eimkasp/lara-woo.git
+   cd lara-woo
+   ```
+
+2. Install the dependencies:
+   ```
+   composer install
+   npm install
+   npm run dev
+   ```
+
+3. Set up the environment variables:
+   ```
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. Update the `.env` file with your database and WooCommerce credentials.
+
+5. Run the migrations and seed the database:
+   ```
+   php artisan migrate --seed
+   ```
+
+6. Start the local development server:
+   ```
+   php artisan serve
+   ```
+
+## Initial Seed Data
+
+The project includes initial seed data to help you get started quickly. The seed data includes sample products, customers, and orders. To seed the database with the initial data, run the following command:
+```
+php artisan db:seed --class=InitialDataSeeder
+```
+
+## Running Tests
+
+To run the tests, use the following command:
+```
+./vendor/bin/pest
+```
+
+## Continuous Integration
+
+The project includes a GitHub Actions workflow for running tests automatically. The workflow is defined in the `.github/workflows/ci.yml` file.

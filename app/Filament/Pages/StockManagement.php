@@ -6,11 +6,14 @@ use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\Layout\Stack;
+use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use App\Models\Product;
 
-class StockManagement extends Page implements Tables\Contracts\HasTable
+class StockManagement extends Page implements Tables\Contracts\HasTable, Forms\Contracts\HasForms
 {
     use Tables\Concerns\InteractsWithTable;
+    use Forms\Concerns\InteractsWithForms;
 
     protected static string $view = 'filament.pages.stock-management';
 
@@ -53,10 +56,27 @@ class StockManagement extends Page implements Tables\Contracts\HasTable
                         ->label('Stock Quantity')
                         ->getStateUsing(function ($record) {
                             return $record->variations->pluck('stock_quantity')->implode(', ');
+                        })
+                        ->editable(function ($record) {
+                            return true;
                         }),
                 ]),
             ]),
         ];
     }
-}
 
+    protected function getFormSchema(): array
+    {
+        return [
+            TextInput::make('stock_quantity')
+                ->label('Stock Quantity')
+                ->numeric()
+                ->required(),
+        ];
+    }
+
+    public function updateStockQuantity($record, $data)
+    {
+        $record->update(['stock_quantity' => $data['stock_quantity']]);
+    }
+}
