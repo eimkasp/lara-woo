@@ -45,6 +45,17 @@ class SyncOrdersJob implements ShouldQueue
                 if (!$customer) {
                     continue;
                 }
+
+                // Get shipping method and total
+                $shippingMethod = '';
+                $shippingTotal = 0;
+
+                if (!empty($order->shipping_lines)) {
+                    $shippingLine = $order->shipping_lines[0];
+                    $shippingMethod = $shippingLine->method_title ?? '';
+                    $shippingTotal = $shippingLine->total ?? 0;
+                }
+
                 // Save order details including billing information and original order date
                 $orderModel = Order::updateOrCreate(
                     [
@@ -69,6 +80,16 @@ class SyncOrdersJob implements ShouldQueue
                         'billing_email' => $order->billing->email,
                         'billing_phone' => $order->billing->phone,
                         'original_order_date' => $order->date_created,
+                        'shipping_method' => $shippingMethod,
+                        'shipping_total' => $shippingTotal,
+                        'shipping_first_name' => $order->shipping->first_name ?? '',
+                        'shipping_last_name' => $order->shipping->last_name ?? '',
+                        'shipping_address_1' => $order->shipping->address_1 ?? '',
+                        'shipping_address_2' => $order->shipping->address_2 ?? '',
+                        'shipping_city' => $order->shipping->city ?? '',
+                        'shipping_state' => $order->shipping->state ?? '',
+                        'shipping_postcode' => $order->shipping->postcode ?? '',
+                        'shipping_country' => $order->shipping->country ?? '',
                     ]
                 );
 

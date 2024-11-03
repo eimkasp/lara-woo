@@ -23,6 +23,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Widgets\LatestActivities;
+use App\Filament\Pages\ActivityLog;
+use App\Filament\Widgets\OrdersPerDayChart;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -41,17 +44,19 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
                 StockManagement::class,
-
+                ActivityLog::class,
             ])
             // ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                StatsOverviewWidget::class,
-                OrderSummaryWidget::class,
+                OrdersPerDayChart::class,
+                // StatsOverviewWidget::class,
+                // OrderSummaryWidget::class,
                 OrdersByStatusWidget::class,
-                LatestCustomers::class,
+                // LatestCustomers::class,
                 LatestOrders::class,
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
+                LatestActivities::class,
             ])
             
             ->middleware([

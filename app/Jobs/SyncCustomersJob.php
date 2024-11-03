@@ -52,7 +52,8 @@ class SyncCustomersJob implements ShouldQueue
                         'last_name' => $lastName,
                         'email' => $customer->email,
                         'channel_id' => $this->channel->id,
-                        'channel' => $customer->id,
+                        // Check if $customer id is empty use 0
+                        'channel' => $customer->id ?? 0,
                         'woocommerce_id' => $customer->id,
 
                     ]

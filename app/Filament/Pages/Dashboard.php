@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\OrdersPerDayChart;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Widgets\StatsOverviewWidget;
 use App\Filament\Widgets\OrderSummaryWidget;
@@ -12,15 +13,16 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
-            StatsOverviewWidget::class,
+            // StatsOverviewWidget::class,
+            OrdersPerDayChart::class,
             OrderSummaryWidget::class,
-            CustomerSummaryWidget::class,
+            // CustomerSummaryWidget::class,
         ];
     }
 
     public function getColumns(): int
     {
-        return 1; // Define the number of columns
+        return 2; // Define the number of columns
     }
 
     protected function getWidgetsLayout(): array
@@ -30,14 +32,14 @@ class Dashboard extends BaseDashboard
                 [
                     'width' => 1,
                     'widgets' => [
-                        StatsOverviewWidget::class,
+                        // StatsOverviewWidget::class,
                     ],
                 ],
                 [
                     'width' => 1,
                     'widgets' => [
                         OrderSummaryWidget::class,
-                        CustomerSummaryWidget::class,
+                        // CustomerSummaryWidget::class,
                     ],
                 ],
             ],

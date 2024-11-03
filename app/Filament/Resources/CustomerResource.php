@@ -12,6 +12,8 @@ use Filament\Tables;
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Filament\Resources\CustomerResource\RelationManagers\OrderRelationManager;
 use App\Models\Customer;
+use Filament\Tables\Columns\TextColumn;
+use NumberFormatter;
 
 class CustomerResource extends Resource
 {
@@ -50,12 +52,22 @@ class CustomerResource extends Resource
                 //         Forms\Components\TextInput::make('total')->required(),
                 //     ])
                 //     ->disabled(),
+                Forms\Components\Placeholder::make('total_spent')
+                    ->label('Total Spent')
+                    ->content(function ($record) {
+                        $formatter = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+                        return $formatter->formatCurrency($record->total_spent ?? 0, 'USD');
+                    }),
+                Forms\Components\Placeholder::make('last_order')
+                    ->label('Last Order')
+                    ->content(fn (Customer $record): string => $record->latestOrder?->created_at?->format('M j, Y') ?? 'Never'),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->withTotalSpent())
             ->columns([
                 Tables\Columns\TextColumn::make('id')->sortable(),
                 Tables\Columns\TextColumn::make('first_name')->sortable()->searchable(),
@@ -68,6 +80,16 @@ class CustomerResource extends Resource
                 Tables\Columns\TextColumn::make('orders_count')
                     ->label('Orders')
                     ->counts('orders')  // Counting the number of related orders
+                    ->sortable(),
+                TextColumn::make('total_spent')
+                    ->formatStateUsing(fn ($state) => 
+                        (new NumberFormatter('en_US', NumberFormatter::CURRENCY))
+                            ->formatCurrency($state ?? 0, 'USD')
+                    )
+                    ->sortable(),
+                TextColumn::make('latestOrder.created_at')
+                    ->label('Last Order')
+                    ->date('M j, Y')
                     ->sortable(),
             ])
             ->filters([

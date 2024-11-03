@@ -17,7 +17,7 @@
         "kodeine/laravel-meta": "^2.2",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
-        "pxlrbt/filament-activity-log": "^1.1",
+        "pxlrbt/filament-activity-log": "^2.0",
         "spatie/laravel-activitylog": "^4.8",
         "spatie/laravel-schemaless-attributes": "^2.5"
     },
@@ -35,7 +35,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

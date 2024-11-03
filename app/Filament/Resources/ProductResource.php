@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
@@ -11,6 +12,14 @@ use Filament\Resources\Resource;
 use Filament\Forms\Form;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\Grid;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\Tabs;
+use Filament\Infolists\Components\Tabs\Tab;
 
 class ProductResource extends Resource
 {
@@ -65,10 +74,11 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('primary_image_url')
-                    ->label('Image Preview')
-                    ->sortable()
-                    ->disk('public')
+                Tables\Columns\ImageColumn::make('images')
+                    ->label('Image')
+                    ->getStateUsing(fn ($record) => $record->images()->first()?->url)
+                    ->circular()
+                    ->defaultImageUrl(url('/images/placeholder.png')) // Optional: add a placeholder
                     ->width(100)
                     ->height(100),
                 Tables\Columns\TextColumn::make('id')->sortable(),
@@ -94,6 +104,115 @@ class ProductResource extends Resource
                     ->relationship('channel', 'name')
                     ->label('Channel'),
             ], layout: FiltersLayout::AboveContentCollapsible);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Grid::make([
+                    'default' => 1,
+                    'sm' => 3,
+                ])->schema([
+                    Grid::make()
+                        ->schema([
+                            Section::make('Product Details')
+                                ->schema([
+                                    Grid::make(2)->schema([
+                                        ImageEntry::make('primary_image_url')
+                                            ->label('Product Image')
+                                            ->height(200)
+                                            ->extraAttributes(['class' => 'rounded-lg']),
+                                        Grid::make()
+                                            ->schema([
+                                                TextEntry::make('sku')
+                                                    ->label('SKU')
+                                                    ->weight(FontWeight::Bold),
+                                                TextEntry::make('stock_quantity')
+                                                    ->label('Stock')
+                                                    ->badge()
+                                                    ->color(fn ($state) => $state > 0 ? 'success' : 'danger'),
+                                            ]),
+                                    ]),
+                                ]),
+
+                            Tabs::make('Channel Information')
+                                ->tabs([
+                                    Tab::make('Current Channel')
+                                        ->schema([
+                                            Grid::make(2)->schema([
+                                                TextEntry::make('name')
+                                                    ->label('Product Name')
+                                                    ->weight(FontWeight::Bold)
+                                                    ->size(TextEntry\TextEntrySize::Large),
+                                                TextEntry::make('price')
+                                                    ->money('USD')
+                                                    ->weight(FontWeight::Bold)
+                                                    ->color('success'),
+                                                TextEntry::make('channel.name')
+                                                    ->label('Channel')
+                                                    ->badge(),
+                                                // Add more channel-specific fields
+                                            ]),
+                                        ]),
+                                    
+                                    Tab::make('Other Channels')
+                                        ->schema([
+                                            RepeatableEntry::make('relatedProductsBySku')
+                                                ->schema([
+                                                    Grid::make(3)->schema([
+                                                        TextEntry::make('name')
+                                                            ->label('Product Name')
+                                                            ->weight(FontWeight::Medium),
+                                                        TextEntry::make('channel.name')
+                                                            ->label('Channel')
+                                                            ->badge(),
+                                                        TextEntry::make('price')
+                                                            ->money('USD'),
+                                                    ]),
+                                                ])
+                                                ->columnSpanFull(),
+                                        ]),
+                                ])
+                                ->columnSpanFull(),
+                        ])
+                        ->columnSpan(2),
+
+                    Grid::make()
+                        ->schema([
+                            Section::make('SKU Information')
+                                ->description('Product variations across all channels')
+                                ->schema([
+                                    TextEntry::make('grouped_related_products')
+                                        ->label('Related SKUs')
+                                        ->listWithLineBreaks()
+                                        ->getStateUsing(function ($record) {
+                                            return $record->getGroupedRelatedProducts()
+                                                ->map(function ($products, $channelName) {
+                                                    $productsInfo = $products->map(function ($product) {
+                                                        return "SKU: {$product['sku']} - {$product['name']} (\${$product['price']})";
+                                                    })->join("\n");
+                                                    return "Channel: {$channelName}\n{$productsInfo}";
+                                                })
+                                                ->join("\n\n");
+                                        }),
+                                ]),
+
+                            Section::make('Additional Images')
+                                ->collapsible()
+                                ->schema([
+                                    RepeatableEntry::make('images')
+                                        ->schema([
+                                            ImageEntry::make('url')
+                                                ->height(100)
+                                                ->extraAttributes(['class' => 'rounded-lg']),
+                                        ])
+                                        ->columns(2),
+                                ]),
+                        ])
+                        ->columnSpan(1),
+                ]),
+            ]);
     }
 
     public static function getPages(): array

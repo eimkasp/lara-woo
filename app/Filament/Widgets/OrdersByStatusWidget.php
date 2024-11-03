@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Cache;
 
 class OrdersByStatusWidget extends BaseWidget
 {
+    protected static ?int $sort = 2;
+    protected int | string | array $columnSpan = '2';
+    protected static ?int $columns = 2;
+
+    protected function getHeaderWidgetsColumns(): int|array
+    {
+        return 2;
+    }
+
     protected function getCards(): array
     {
         $statuses = Cache::remember('orders_by_status', now()->addMinutes(10), function () {

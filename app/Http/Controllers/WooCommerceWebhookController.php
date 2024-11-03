@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Customer;
+use App\Models\StockChange;
 
 class WooCommerceWebhookController extends Controller
 {
@@ -83,6 +84,13 @@ class WooCommerceWebhookController extends Controller
                 'channel_id' => $productData['channel_id'],
             ]
         );
+
+        // Track stock changes
+        StockChange::create([
+            'product_id' => $productModel->id,
+            'quantity_change' => $productData['stock_quantity'],
+            'source' => 'webhook',
+        ]);
     }
 
     protected function syncCustomer($customerData)

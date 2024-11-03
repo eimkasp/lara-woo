@@ -11,6 +11,8 @@ class LatestOrders extends BaseWidget
 {
     protected static ?string $heading = 'Latest Orders';
 
+    protected static ?int $sort = 3;
+
     /**
      * Get the query used to retrieve the latest orders.
      *
